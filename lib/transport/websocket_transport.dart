@@ -4,7 +4,7 @@ class WebsocketTransport implements Transport {
 
   Logger _log = new Logger('WebsocketTransport');
 
-  int get readyState => (_socket == null) ? CLOSED : _socket.readyState;
+  int get readyState => (_socket == null) ? Transport.CLOSED : _socket.readyState;
 
   WebSocket _socket;
 
