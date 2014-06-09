@@ -1,5 +1,8 @@
 part of telephonist;
 
+/**
+ * TODO: rename
+ */
 class Messager {
 
   Logger _log = new Logger('Messager');
@@ -19,6 +22,7 @@ class Messager {
 
   void send(data) {
     String message = JSON.encode({
+      // TODO move nextSendId outside, must be global
         'id': _nextSendId,
         'type': 'message',
         'body': data,
@@ -30,6 +34,8 @@ class Messager {
   void confirmIncomingMessage() {
     if (_isIncomingConfirmation()) {
       // TODO incoming confirmation?
+    } else if (_isPing()) {
+      _sendPong();
     } else {
       _sendConfirmation();
     }
@@ -48,14 +54,27 @@ class Messager {
   }
 
   void _sendConfirmation() {
+    var id = _message['id'];
+
+    /**
+     * TODO: what if id is null?
+     */
+
     String message = JSON.encode({
       'id': _nextSendId,
       'type': 'confirmation',
       'body': {
-        'id': _message['id']
+        'id': id
       }
     });
 
+    _transport.send(message);
+  }
+
+  void _sendPong() {
+    String message = JSON.encode({
+      'type': 'pong'
+    });
     _transport.send(message);
   }
 
@@ -64,5 +83,9 @@ class Messager {
     var messageId = _message['id'];
 
     return ((messageType == 'confirmation') && (messageId != null));
+  }
+
+  bool _isPing() {
+    return (_message['type'] == 'ping');
   }
 }
