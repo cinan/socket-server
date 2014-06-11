@@ -4,9 +4,6 @@ class PollingTransport implements Transport {
 
   Logger _log = new Logger('PollingTransport');
 
-  // TODO: Do I need this?
-  int get readyState => Transport.CLOSED; //(_socket == null) ? CLOSED : _socket.readyState;
-
   HttpRequest _request;
 
   PollingTransport(HttpRequest this._request) {
