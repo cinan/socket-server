@@ -27,11 +27,4 @@ class PollingTransport implements Transport {
 
     _log.info('sent ${data}');
   }
-
-//  void _setupListeners() {
-//    },onError: (e) => _log.severe('Some error received'),
-//      onDone: () => _log.finest('Stream done'),
-//      cancelOnError: false
-//    );
-//  }
 }

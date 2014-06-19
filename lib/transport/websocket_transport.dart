@@ -26,6 +26,7 @@ class WebsocketTransport implements Transport {
   }
 
   void send(data) {
+    _log.fine('Sending response ${data}');
     _socket.add(data);
   }
 
