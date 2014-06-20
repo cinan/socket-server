@@ -7,7 +7,7 @@ class Messager {
 
   Logger _log = new Logger('Messager');
 
-  Map _message;
+  Map _rawMessage;
 
   Transport _transport;
 
@@ -15,9 +15,11 @@ class Messager {
 
   LinkedHashMap<dynamic, String> _messageBuffer = new LinkedHashMap<dynamic, String>();
 
+  get message => (_rawMessage == null) ? null : _rawMessage['body'];
+
   Messager(this._transport, String message) {
-    _message = decodeMessage(message);
-    confirmIncomingMessage();
+    _rawMessage = decodeMessage(message);
+    processMessage();
   }
 
   void send(data) {
@@ -31,13 +33,13 @@ class Messager {
     _transport.send(message);
   }
 
-  void confirmIncomingMessage() {
+  void processMessage() {
     if (_isIncomingConfirmation()) {
       // TODO incoming confirmation?
     } else if (_isPing()) {
       _sendPong();
     } else {
-      _sendConfirmation();
+//      _sendConfirmation();
     }
   }
 
@@ -54,7 +56,7 @@ class Messager {
   }
 
   void _sendConfirmation() {
-    var id = _message['id'];
+    var id = _rawMessage['id'];
 
     /**
      * TODO: what if id is null?
@@ -79,13 +81,13 @@ class Messager {
   }
 
   bool _isIncomingConfirmation() {
-    String messageType = _message['type'];
-    var messageId = _message['id'];
+    String messageType = _rawMessage['type'];
+    var messageId = _rawMessage['id'];
 
     return ((messageType == 'confirmation') && (messageId != null));
   }
 
   bool _isPing() {
-    return (_message['type'] == 'ping');
+    return (_rawMessage['type'] == 'ping');
   }
 }

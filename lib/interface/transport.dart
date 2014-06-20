@@ -7,6 +7,8 @@ abstract class Transport {
   static const int CONNECTING = 2;
   static const int OPEN       = 3;
 
+  Stream get onMessage;
+
   Transport(HttpRequest req);
 
   void send(data);

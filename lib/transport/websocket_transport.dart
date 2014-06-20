@@ -6,6 +6,9 @@ class WebsocketTransport implements Transport {
 
   WebSocket _socket;
 
+  StreamController _onMessageController = new StreamController();
+  Stream           get onMessage        => _onMessageController.stream;
+
   WebsocketTransport(HttpRequest req) {
     setStream(req);
   }
@@ -34,9 +37,10 @@ class WebsocketTransport implements Transport {
     _socket.listen((String message) {
       _log.info('Some message received');
       Messager messager = new Messager(this, message);
-      // TODO place for custom callbacks
+
+      _onMessageController.add(messager.message);
     },onError: (e) => _log.severe('Some error received'),
-      onDone: () => _log.finest('Stream done'),
+      onDone: () => _log.finest('Stream done (client disconnected)'),
       cancelOnError: false
     );
   }

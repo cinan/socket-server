@@ -12,4 +12,8 @@ main() {
   });
 
   TelephonistManager cm = new TelephonistManager();
+
+  cm.onMessage.listen((msg) {
+    cm.respond(JSON.encode({'id': 1, 'body': {'type': 'sync', 'data': ['first', 'blood']}}));
+  });
 }

@@ -12,6 +12,7 @@ part 'interface/transport.dart';
 part 'transport/websocket_transport.dart';
 part 'transport/polling_transport.dart';
 part 'wrapper/messager.dart';
+part 'my_stream_consumer.dart';
 
 class TelephonistManager {
 
@@ -20,24 +21,50 @@ class TelephonistManager {
 
   Logger _log = new Logger('TelephonistManager');
 
+  Transport _transport;
+
+  StreamController _onMessageController = new StreamController();
+  Stream           get onMessage        => _onMessageController.stream;
+
   TelephonistManager() {
-    runZoned(() {
+//    runZoned(() {
       HttpServer.bind(SERVER_HOST, SERVER_PORT).then((HttpServer server) {
         server.listen((HttpRequest request) {
           if (request.uri.path == '/ws') {
-            new WebsocketTransport(request);
+            _transport = new WebsocketTransport(request);
           } else if (request.uri.path == '/polling') {
-            new PollingTransport(request);
+            _transport = new PollingTransport(request);
           } else {
             throw new UnimplementedError();
           }
+
+          _setupListeners();
         });
 
         _log.fine("Listening on $SERVER_HOST:$SERVER_PORT");
       });
-    }, onError: (e, stackTrace) {
-      print(stackTrace);
-      _log.shout("Something's gone wrong");
-    });
+//    }, onError: (e, stackTrace) {
+//      print(stackTrace);
+//      _log.shout("Something's gone wrong");
+//    });
+  }
+
+  /**
+   * Alias for send() method
+   */
+  void respond(String message) {
+    send(message);
+  }
+
+  void send(String message) {
+    if (_transport != null) {
+      // TODO: pridat do queue, ktora sa bude odosielat ku klientovi
+      // TODO nejak inak poriesit zaobalovanie sprav do stringu
+      _transport.send(message);
+    }
+  }
+
+  void _setupListeners() {
+    _transport.onMessage.pipe(new MyStreamConsumer(_onMessageController));
   }
 }
