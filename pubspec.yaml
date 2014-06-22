@@ -3,3 +3,5 @@ dependencies:
   browser: any
   logging: ">=0.9.1+1 <0.10.0"
   http_server: any
+  messages:
+    path: ../messages/

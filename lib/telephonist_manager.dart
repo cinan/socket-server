@@ -7,6 +7,7 @@ import 'dart:collection';
 
 import 'package:http_server/http_server.dart';
 import 'package:logging/logging.dart';
+import 'package:messages/messages.dart';
 
 part 'interface/transport.dart';
 part 'transport/websocket_transport.dart';

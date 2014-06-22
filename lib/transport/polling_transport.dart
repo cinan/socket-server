@@ -28,7 +28,6 @@ class PollingTransport implements Transport {
   void send(data) {
     _log.fine('Sending response');
 
-//    _request.response.headers.contentType = ContentType.JSON;
     _request.response.headers.add("Access-Control-Allow-Origin", "*");
 
     _request.response.write(data);
