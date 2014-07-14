@@ -1,47 +1,71 @@
-part of telephonist;
+part of serverManager;
 
 class WebsocketTransport implements Transport {
 
   Logger _log = new Logger('WebsocketTransport');
 
-  WebSocket _socket;
+  Map<String, WebSocket> _clientToSocket = {};
 
-  StreamController _onMessageController = new StreamController();
-  Stream           get onMessage        => _onMessageController.stream;
+  StreamController<String> _onOpenController = new StreamController();
+  Stream<String> get onOpen => _onOpenController.stream;
 
-  WebsocketTransport(HttpRequest req) {
-    setStream(req);
-  }
+  StreamController<Map> _onMessageController = new StreamController();
+  Stream<Map> get onMessage => _onMessageController.stream;
 
-  /**
-   * Upgrades [req] to WebSocket connection.
-   */
-  void setStream(HttpRequest req) {
-    StreamController sc = new StreamController();
+  // TODO onDone?
 
-    sc.stream.transform(new WebSocketTransformer())
-             .listen((WebSocket socket) {
-      _socket = socket;
-      _setupListeners();
+  WebsocketTransport(Stream server, String url) {
+    server.listen((HttpRequest request) {
+      if (request.uri.path == url) {
+        String idClient = _setupIdClient(request);
+        request.response.headers.add("Access-Control-Allow-Origin", "*");
+
+        WebSocketTransformer.upgrade(request).then((WebSocket socket) {
+          _clientToSocket[idClient] = socket;
+
+          _onOpenController.add(idClient);
+
+          socket.listen((String rawMessage) {
+            try {
+              JsonObject data = new JsonObject.fromJsonString(rawMessage);
+              _onMessageController.add({
+                  'idClient': idClient, 'data': data
+              });
+            }
+            on FormatException
+            {
+            }
+          }, onError: (e) => _log.severe('Some error happened'), onDone: () {
+            _clientToSocket.remove(idClient);
+          }, cancelOnError: true);
+        });
+      }
     });
-
-    sc.add(req);
   }
 
-  void send(data) {
-    _log.fine('Sending response ${data}');
-    _socket.add(data);
+  void send(String data, String idClient) {
+    _log.fine('sending message');
+
+    WebSocket socket = _clientToSocket[idClient];
+
+    if (socket != null) {
+      socket.add(data);
+      _log.fine('message sent');
+    }
   }
 
-  void _setupListeners() {
-    _socket.listen((String message) {
-      _log.info('Some message received');
-      Messager messager = new Messager(this, message);
+  String _setupIdClient(HttpRequest req) {
+    String cookieName = 'sessionID';
 
-      _onMessageController.add(messager.message);
-    },onError: (e) => _log.severe('Some error received'),
-      onDone: () => _log.finest('Stream done (client disconnected)'),
-      cancelOnError: false
-    );
+    Map<String, String> cookies = new Map.fromIterable(req.cookies,
+      key: (Cookie cookie) => cookie.name, value: (Cookie item) => item.value);
+
+    String idClient = (cookies.containsKey(cookieName) && cookies[cookieName].isNotEmpty)
+      ? cookies[cookieName]
+      : new Uuid().v4();
+
+    req.response.cookies.add(new Cookie(cookieName, idClient));
+
+    return idClient;
   }
 }

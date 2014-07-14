@@ -1,15 +1,13 @@
-part of telephonist;
+part of serverManager;
 
 abstract class Transport {
 
-  static const int CLOSED     = 0;
-  static const int CLOSING    = 1;
-  static const int CONNECTING = 2;
-  static const int OPEN       = 3;
+  Stream<String> get onOpen;
+  Stream<Map> get onMessage;
 
-  Stream get onMessage;
+  Transport(Stream server, String url);
 
-  Transport(HttpRequest req);
+  void send(String data, String idClient);
 
-  void send(data);
+  void close(String idClient);
 }

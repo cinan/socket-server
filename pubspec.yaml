@@ -2,6 +2,12 @@ name: server
 dependencies:
   browser: any
   logging: ">=0.9.1+1 <0.10.0"
-  http_server: any
+  json_object: any
+  uuid: ">=0.3.2 <0.4.0"
+  http_server: ">=0.9.2+2 <0.10.0"
   messages:
     path: ../messages/
+
+dev_dependencies:
+  unittest: ">=0.11.0 <0.12.0"
+  mock: ">=0.11.0 <0.12.0"
