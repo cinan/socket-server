@@ -10,6 +10,7 @@ import 'package:messages/messages.dart';
 import 'package:uuid/uuid_server.dart';
 import 'package:json_object/json_object.dart';
 import 'package:http_server/http_server.dart';
+
 export 'package:messages/messages.dart';
 
 part 'interface/transport.dart';
@@ -113,6 +114,7 @@ class Manager {
     message.pending = true;
 
     MessageContainer container = new MessageContainer();
+    queue.add(message);
     container.addAll(queue);
 
     String data;
@@ -125,6 +127,7 @@ class Manager {
       return;
     }
 
+    _log.info('passing data to transport');
     _sendToTransport(data, idClient);
   }
 
