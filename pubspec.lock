@@ -43,9 +43,10 @@ packages:
     version: "0.10.1+1"
   messages:
     description:
-      path: "../messages"
-      relative: true
-    source: path
+      ref: master
+      resolved-ref: "4b59f25dd9d4c52fb9b04c88257d9c6e4bc7aac2"
+      url: "https://github.com/cinan/socket-messages.git"
+    source: git
     version: "0.0.0"
   mime:
     description: mime
